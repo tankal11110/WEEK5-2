@@ -1,80 +1,59 @@
-function EventEmitter() {
-    this.events = {};
-}
-EventEmitter.prototype.on = function(type, fn) {
-    if(!type || !fn) return;
-	
-    this.events[type] = this.events[type] || [];
-    this.events[type].push(fn);
-}
-EventEmitter.prototype.emit = function(type, data) {
+(function(){
+function LocalDB(name){
 
-    var fns = this.events[type];
-
-    if(!fns || !fns.length) return;
-
-    for(var i = 0; i < fns.length; i++) {
-        fns[i](data);
-    }
+	this.name = name;
+	this.data = {};
 };
-//-----------------------------------------------------
-function Database(url) {
-    this.url = url;
-	EventEmitter.call(this,{});
+
+LocalDB.prototype.save = function(key,value){
+
+	if (key && value){
+		var full_key = this.name + "." + key;
+		this.data[full_key] = JSON.stringify(value);
+		this.saveToLocalStorage(full_key, this.data[full_key]);
+	}
+};
+
+LocalDB.prototype.saveToLocalStorage = function(key,value){
+
+};
+
+LocalDB.prototype.get = function(key){
+
+	if (key){
+		return JSON.parse(this.data[this.name + "." + key]);
+	}
+};
+// Tworzona jest nowa instancja,
+// w której należy zapamiętać nazwę "DB1"
+
+if ("localStorage" in window){
+
+	var DB1 = new LocalDB("DB1");
+
+// Jakiś obiekt do zapisania
+	var janek = {
+    	firstName: "Jan",
+    	lastName: "Kowalski",
+    	age: 32
+	};
+
+// Na prototypie LocalDB znajdować się
+// musi metoda save, która przyjmuje
+// parę klucz-wartość, a wartość powinna
+// być przed zapisaniem przepuszczona
+// przez JSON.stringify
+	DB1.save("janek", janek);
+
+// Prototyp LocalDB powinien również
+// posiadać metodę get, która odczyta
+// podany klucz, przepuszczając wartość
+// przez JSON.parse
+	DB1.get("janek");
+
+// Porada. Aby móżna było tworzyć bazy danych
+// o różnych nazwach, przy zapisywaniu poszczególnych
+// danych, do klucza dodawaj nazwę bazy danych,
+// np. "DB1.janek"
 }
-
-Database.prototype.connect = function() {
-
-    // fikcyjne podłączenie do bazy
-    this.emit("connect", this.url);
-
-}
-
-Database.prototype.disconnect = function() {
-
-    // fikcyjne zakończenie połączenia z bazą
-
-    this.emit("disconnect", this.url);
-
-}
-
-Database.prototype = Object.create(EventEmitter.prototype);
-Database.prototype.constructor = Database;
-
-// Użycie EventEmittera
-var ev = new EventEmitter();
-
-ev.on("hello", function(message) {
-    console.log("Witaj " + message + "!");
-});
-
-ev.on("hello", function(message) {
-    console.log("Siema " + message + ".");
-});
-
-ev.on("goodbye", function() {
-    console.log("Do widzenia!");
-});
-
-ev.emit("hello", "Marek");
-ev.emit("goodbye");
-ev.emit("custom"); // nic się nie wydarzy
-
-// DO ZROBIENIA!
-// Docelowe użycie klasy Database
-var db = new Database("db://localhost:3000"); // fikcyjny adres
-
-db.on("connect", function(url) {
-    console.log("Połączenie z bazą pod adresem " + url + " zostało ustanowione.");
-});
-
-db.on("disconnect", function(url) {
-    console.log("Połączenie z bazą pod adresem " + url + " zostało zakończone.");
-});
-
-db.emit("connect");
-
-// po 5 sekundach rozłączamy się
-setTimeout(function() {
-    db.emit("disconnect");
-}, 5000);
+})();
