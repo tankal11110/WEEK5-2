@@ -1,0 +1,22 @@
+<div class ="container "style="padding: 20px;">
+  
+
+<div class="row"> 
+ <div class="col-xs-6">
+    <input type="checkbox" [(ngModel)]="hidden">
+    <label>hidden</label>
+    <form-component [hidden]="!hidden"></form-component>
+  </div>
+
+  <div class="col-xs-6">
+    <input type="checkbox" [(ngModel)]="ngIf">
+    <label>ngIf</label>
+    <form-component *ngIf="ngIf"></form-component>
+  </div>
+</div>
+  
+  <div class="row">
+  <p><b>NgIF</b> usówa element ze strony</p>
+	<p><b>hidden</b> ukrywa element</p>
+  </div>
+</div>
